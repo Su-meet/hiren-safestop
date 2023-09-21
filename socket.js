@@ -19,10 +19,12 @@ module.exports.initIO = (httpServer) => {
     socket.on("call", (data) => {
       let calleeId = data.calleeId;
       let rtcMessage = data.rtcMessage;
-
+      let name = data.name;
       socket.to(calleeId).emit("newCall", {
         callerId: socket.user,
         rtcMessage: rtcMessage,
+        name: name,
+        identification: data.identification,
       });
     });
 
@@ -33,6 +35,28 @@ module.exports.initIO = (httpServer) => {
       socket.to(callerId).emit("callAnswered", {
         callee: socket.user,
         rtcMessage: rtcMessage,
+      });
+    });
+
+    socket.on("senddata", (data) => {
+      let callerId = data.callerId;
+      let officerId = data.officerId;
+      socket.to(callerId).emit("receivedata", {
+        callee: socket.user,
+        officerId: officerId,
+      });
+    });
+
+    socket.on("senddataofficer", (data) => {
+      let callerId = data.callerId;
+      let officerdata = data.officerdata;
+      let ipAddress = data.ipAddress;
+      let fcmtoken = data.fcmtoken;
+      socket.to(callerId).emit("receivedataofficer", {
+        callee: socket.user,
+        officerId: officerdata,
+        ipAddress: ipAddress,
+        fcmtoken: fcmtoken,
       });
     });
 
